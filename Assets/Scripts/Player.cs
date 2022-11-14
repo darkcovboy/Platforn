@@ -7,6 +7,7 @@ using UnityEngine.UI;
 public class Player : MonoBehaviour
 {
     [SerializeField] private UnityEvent _hit;
+
     public int CoinCoint { get; private set; }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -18,7 +19,6 @@ public class Player : MonoBehaviour
 
         if (collision.collider.TryGetComponent(out Coin coin))
         {
-            Debug.Log("Yes");
             Destroy(coin.gameObject);
             CoinCoint++;
         }

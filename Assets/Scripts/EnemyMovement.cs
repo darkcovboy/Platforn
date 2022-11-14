@@ -5,6 +5,7 @@ using UnityEngine;
 public class EnemyMovement : MonoBehaviour
 {
     [SerializeField] private Transform _path;
+
     private Transform[] _points;
     private int _currentPoint;
     private float _speed = 2f;

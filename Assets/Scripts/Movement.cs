@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class Movement : MonoBehaviour
 {
+    private const string isRunningAnimate = "isRunning";
+
     [SerializeField] private float _speed;
     [SerializeField] private float _jumpForce;
 
@@ -36,19 +38,19 @@ public class Movement : MonoBehaviour
     {
         if (Input.GetKey(KeyCode.D))
         {
-            _animator.SetBool("isRunning", true);
+            _animator.SetBool(isRunningAnimate, true);
             _sprite.flipX = false;
             transform.position += _speed * Time.deltaTime * new Vector3(1, 0, 0);
         }
         else if (Input.GetKey(KeyCode.A))
         {
-            _animator.SetBool("isRunning", true);
+            _animator.SetBool(isRunningAnimate, true);
             _sprite.flipX = true;
             transform.position += _speed * Time.deltaTime * new Vector3(-1, 0, 0);
         }
         else
         {
-            _animator.SetBool("isRunning", false);
+            _animator.SetBool(isRunningAnimate, false);
         }
     }
 }
