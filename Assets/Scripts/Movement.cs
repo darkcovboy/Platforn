@@ -10,6 +10,7 @@ public class Movement : MonoBehaviour
     public float GravityModifier = 1f;
     public Vector2 Velocity;
     public LayerMask LayerMask;
+    public float Speed = 5f;
 
     protected Vector2 targetVelocity;
     protected bool grounded;
@@ -43,9 +44,18 @@ public class Movement : MonoBehaviour
         float getAxis = Input.GetAxis("Horizontal");
         targetVelocity = new Vector2(getAxis, 0);
 
-        if (getAxis == 1  || getAxis == -1)
+        if (getAxis != 0)
         {
-            _animator.SetBool(IsRunningAnimate, true);
+            if (getAxis == 1)
+            {
+                _sprite.flipX = false;
+                _animator.SetBool(IsRunningAnimate, true);
+            }
+            else
+            {
+                _sprite.flipX = true;
+                _animator.SetBool(IsRunningAnimate, true);
+            }
         }
         else
         {
@@ -53,16 +63,18 @@ public class Movement : MonoBehaviour
         }
 
         if (Input.GetKey(KeyCode.Space) && grounded)
-            Velocity.y = 5;
+            Velocity.y = 10;
     }
 
     private void FixedUpdate()
     {
         Velocity += GravityModifier * Physics2D.gravity * Time.deltaTime;
-        Velocity.x = targetVelocity.x;
+        Debug.Log(Velocity);
+        Velocity.x = targetVelocity.x * Speed;
+        Debug.Log(Velocity.y);
         grounded = false;
 
-        Vector2 deltaPosition = Velocity*Time.deltaTime;
+        Vector2 deltaPosition = Velocity * Time.deltaTime;
         Vector2 moveAlongGround = new Vector2(groundNormal.y, -groundNormal.x);
         Vector2 move = moveAlongGround * deltaPosition.x;
 
@@ -118,33 +130,4 @@ public class Movement : MonoBehaviour
 
         rb2d.position = rb2d.position + move.normalized * distance;
     }
-    /*
-    private void Jump()
-    {
-        if(Input.GetKeyDown(KeyCode.Space))
-        {
-           _rigidBody2D.velocity = new Vector2(_rigidBody2D.velocity.x, _jumpForce);
-        }
-    }
-
-    private void Run()
-    {
-        if (Input.GetKey(KeyCode.D))
-        {
-            _animator.SetBool(IsRunningAnimate, true);
-            _sprite.flipX = false;
-            transform.position += _speed * Time.deltaTime * new Vector3(1, 0, 0);
-        }
-        else if (Input.GetKey(KeyCode.A))
-        {
-            _animator.SetBool(IsRunningAnimate, true);
-            _sprite.flipX = true;
-            transform.position += _speed * Time.deltaTime * new Vector3(-1, 0, 0);
-        }
-        else
-        {
-            _animator.SetBool(IsRunningAnimate, false);
-        }
-    }
-    */
 }
