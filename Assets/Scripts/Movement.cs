@@ -12,57 +12,52 @@ public class Movement : MonoBehaviour
     public LayerMask LayerMask;
     public float Speed = 5f;
 
-    protected Vector2 targetVelocity;
-    protected bool grounded;
-    protected Vector2 groundNormal;
-    protected Rigidbody2D rb2d;
-    protected ContactFilter2D contactFilter;
-    protected RaycastHit2D[] hitBuffer = new RaycastHit2D[16];
-    protected List<RaycastHit2D> hitBufferList = new List<RaycastHit2D>(16);
-    protected Animator _animator;
-    protected SpriteRenderer _sprite;
+    protected Vector2 TargetVelocity;
+    protected bool Grounded;
+    protected Vector2 GroundNormal;
+    protected Rigidbody2D Rb2d;
+    protected ContactFilter2D ContactFilter;
+    protected RaycastHit2D[] HitBuffer = new RaycastHit2D[16];
+    protected List<RaycastHit2D> HitBufferList = new List<RaycastHit2D>(16);
+    protected Animator Animator;
+    protected SpriteRenderer Sprite;
 
-    protected const float minMoveDistance = 0.001f;
-    protected const float shellRadius = 0.01f;
+    protected const float MinMoveDistance = 0.001f;
+    protected const float ShellRadius = 0.01f;
 
     private void OnEnable()
     {
-        rb2d = GetComponent<Rigidbody2D>();
-        _animator = GetComponent<Animator>();
-        _sprite = GetComponent<SpriteRenderer>();
+        Rb2d = GetComponent<Rigidbody2D>();
+        Animator = GetComponent<Animator>();
+        Sprite = GetComponent<SpriteRenderer>();
     }
 
     private void Start()
     {
-        contactFilter.useTriggers = false;
-        contactFilter.SetLayerMask(LayerMask);
-        contactFilter.useLayerMask = true;
+        ContactFilter.useTriggers = false;
+        ContactFilter.SetLayerMask(LayerMask);
+        ContactFilter.useLayerMask = true;
     }
 
     private void Update()
     {
         float getAxis = Input.GetAxis("Horizontal");
-        targetVelocity = new Vector2(getAxis, 0);
+        TargetVelocity = new Vector2(getAxis, 0);
 
         if (getAxis != 0)
         {
             if (getAxis == 1)
-            {
-                _sprite.flipX = false;
-                _animator.SetBool(IsRunningAnimate, true);
-            }
+                Sprite.flipX = false;
             else
-            {
-                _sprite.flipX = true;
-                _animator.SetBool(IsRunningAnimate, true);
-            }
+                Sprite.flipX = true;
+            Animator.SetBool(IsRunningAnimate, true);
         }
         else
         {
-            _animator.SetBool(IsRunningAnimate, false);
+            Animator.SetBool(IsRunningAnimate, false);
         }
 
-        if (Input.GetKey(KeyCode.Space) && grounded)
+        if (Input.GetKey(KeyCode.Space) && Grounded)
             Velocity.y = 10;
     }
 
@@ -70,48 +65,48 @@ public class Movement : MonoBehaviour
     {
         Velocity += GravityModifier * Physics2D.gravity * Time.deltaTime;
         Debug.Log(Velocity);
-        Velocity.x = targetVelocity.x * Speed;
+        Velocity.x = TargetVelocity.x * Speed;
         Debug.Log(Velocity.y);
-        grounded = false;
+        Grounded = false;
 
         Vector2 deltaPosition = Velocity * Time.deltaTime;
-        Vector2 moveAlongGround = new Vector2(groundNormal.y, -groundNormal.x);
+        Vector2 moveAlongGround = new Vector2(GroundNormal.y, -GroundNormal.x);
         Vector2 move = moveAlongGround * deltaPosition.x;
 
-        Movement_Go(move, false);
+        Move(move, false);
 
         move = Vector2.up * deltaPosition.y;
 
-        Movement_Go(move, true);
+        Move(move, true);
     }
 
 
-    private void Movement_Go(Vector2 move, bool yMovement)
+    private void Move(Vector2 move, bool yMovement)
     {
         float distance = move.magnitude;
 
-        if (distance > minMoveDistance)
+        if (distance > MinMoveDistance)
         {
-            int count = rb2d.Cast(move, contactFilter, hitBuffer, distance + shellRadius);
+            int count = Rb2d.Cast(move, ContactFilter, HitBuffer, distance + ShellRadius);
 
-            hitBufferList.Clear();
+            HitBufferList.Clear();
 
             for (int i = 0; i < count; i++)
             {
-                hitBufferList.Add(hitBuffer[i]);
+                HitBufferList.Add(HitBuffer[i]);
             }
 
-            for (int i = 0; i < hitBufferList.Count; i++)
+            for (int i = 0; i < HitBufferList.Count; i++)
             {
-                Vector2 currentNormal = hitBufferList[i].normal;
+                Vector2 currentNormal = HitBufferList[i].normal;
 
                 if (currentNormal.y > MinGroundNormalY)
                 {
-                    grounded = true;
+                    Grounded = true;
 
                     if (yMovement)
                     {
-                        groundNormal = currentNormal;
+                        GroundNormal = currentNormal;
                         currentNormal.x = 0;
                     }
                 }
@@ -123,11 +118,11 @@ public class Movement : MonoBehaviour
                     Velocity = Velocity - projection * currentNormal;
                 }
 
-                float modifiedDistance = hitBufferList[i].distance - shellRadius;
+                float modifiedDistance = HitBufferList[i].distance - ShellRadius;
                 distance = modifiedDistance < distance ? modifiedDistance : distance;
             }
         }
 
-        rb2d.position = rb2d.position + move.normalized * distance;
+        Rb2d.position = Rb2d.position + move.normalized * distance;
     }
 }
